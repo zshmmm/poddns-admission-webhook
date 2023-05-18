@@ -1,0 +1,50 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: poddns-admission-webhook-sa
+  labels:
+    app: poddns-admission-webhook
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: poddns-admission-webhook-cr
+  labels:
+    app: poddns-admission-webhook
+rules:
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - "*"
+  verbs:
+  - "*"
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - events
+  - configmaps
+  verbs:
+  - "*"
+- apiGroups:
+  - "events.k8s.io"
+  resources:
+  - events
+  verbs:
+  - "*"
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: poddns-admission-webhook-crb 
+  labels:
+    app: poddns-admission-webhook
+subjects:
+- kind: ServiceAccount
+  name: poddns-admission-webhook-sa
+  namespace: zhuzhu
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: poddns-admission-webhook-cr

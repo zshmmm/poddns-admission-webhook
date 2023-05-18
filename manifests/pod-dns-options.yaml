@@ -1,0 +1,10 @@
+apiVersion: v1
+data:
+  conf.yaml: "dnsConfig:\r\n  nameservers:\r\n  - \"169.254.10.10\"\r\n  - \"10.43.0.10\"\r\n
+    \ searches:\r\n  - default.svc.cluster.local\r\n  - svc.cluster.local\r\n  - cluster.local\r\n
+    \ options:\r\n  - name: \"timeout\"\r\n    value: \"1\"\r\n  - name: \"single-request-reopen\"\r\n
+    \   value: \"\"\r\n  - name: \"ndots\"\r\n    value: \"2\""
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: pod-dns-options

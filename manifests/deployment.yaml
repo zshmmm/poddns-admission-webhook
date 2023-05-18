@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: poddns-admission-webhook
+  labels:
+    app: poddns-admission-webhook
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: poddns-admission-webhook
+  template:
+    metadata:
+      labels:
+        app: poddns-admission-webhook
+    spec:
+      containers:
+        - name: poddns-admission-webhook
+          image: poddns-admission-webhook:v1
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: webhook-certs
+              mountPath: /etc/webhook/certs
+              readOnly: true
+            - name: pod-dns-options
+              mountPath: /etc/webhook/conf
+              readOnly: true
+      serviceAccount: poddns-admission-webhook-sa
+      serviceAccountName: poddns-admission-webhook-sa
+      volumes:
+        - name: webhook-certs
+          secret:
+            secretName: poddns-admission-webhook-tls
+        - name: pod-dns-options
+          configMap:
+            defaultMode: 420
+            name: pod-dns-options
+            items:
+            - key: conf.yaml
+              path: conf.yaml

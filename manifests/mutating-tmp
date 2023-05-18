@@ -1,0 +1,41 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: poddns-admission-webhook
+webhooks:
+# 服务名，与 TLS 认证的域名一致
+- name: poddns-admission-webhook.default.svc
+  clientConfig:
+    # CA 认证，简单的方式是直接使用 kubeconfig 中 certificate-authority-data 字段的证书即可
+    caBundle: ${CA_BUNDLE}
+    service:
+      # 服务名，与 TLS 认证的域名一致
+      name: poddns-admission-webhook
+      # webhook 所在的 namespace，与 TLS 认证保持一致
+      namespace: default
+      # webhook 的 path
+      path: "/mutate--v1-pod"
+      port: 8443
+  rules:
+  - operations: ["CREATE"]
+    apiGroups: [""]
+    apiVersions: ["v1"]
+    resources: ["pods"]
+  # failurePolicy 定义了如何处理准入 Webhook 中无法识别的错误和超时错误。允许的值为 Ignore 或 Fail。
+  # 设置为 Fail 时，会堵塞调用。不建议自定义的 webhook 设置为 Fail
+  failurePolicy: Ignore # Fail
+  # 可以通过如下选择器定义关注哪些 namespace
+  namespaceSelector:
+    matchExpressions:
+    - key: kubernetes.io/metadata.name
+      operator: NotIn
+      values:
+      - kube-system
+      - kube-public
+      - istio-system
+    matchLabels:
+      poddns-admission-webhook-injection: enabled
+  # 在 webhook 中是否支持幂等性调用，如果支持设置为 None，如果不支持设置为 NoneOnDryRun
+  sideEffects: None
+  # admissionReviewVersions 是必填字段。 Webhook 必须支持至少一个当前和以前的 API 服务器都可以解析的 AdmissionReview 版本。
+  admissionReviewVersions: ["v1", "v1beta1"]

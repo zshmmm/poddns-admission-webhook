@@ -1,0 +1,15 @@
+dnsConfig:
+  nameservers:
+  - "169.254.10.10"
+  - "10.43.0.10"
+  searches:
+  - default.svc.cluster.local
+  - svc.cluster.local
+  - cluster.local
+  options:
+  - name: "timeout"
+    value: "1"
+  - name: "single-request-reopen"
+    value: ""
+  - name: "ndots"
+    value: "2"
